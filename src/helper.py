@@ -27,7 +27,7 @@ def maybe_download_pretrained_vgg(data_dir):
     :param data_dir: Directory to download the model to
     """
     vgg_filename = 'vgg.zip'
-    vgg_path = os.path.join(data_dir, 'vgg 2')
+    vgg_path = os.path.join(data_dir, 'vgg')
     vgg_files = [
         os.path.join(vgg_path, 'variables/variables.data-00000-of-00001'),
         os.path.join(vgg_path, 'variables/variables.index'),
@@ -35,7 +35,7 @@ def maybe_download_pretrained_vgg(data_dir):
 
     missing_vgg_files = [vgg_file for vgg_file in vgg_files if not os.path.exists(vgg_file)]
     
-    if missing_vgg_files and test:
+    if missing_vgg_files:
         # Clean vgg dir
         if os.path.exists(vgg_path):
             shutil.rmtree(vgg_path)
