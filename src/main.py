@@ -24,9 +24,7 @@ def load_vgg(sess, vgg_path):
     :param vgg_path: Path to vgg folder, containing "variables/" and "saved_model.pb"
     :return: Tuple of Tensors from VGG model (image_input, keep_prob, layer3_out, layer4_out, layer7_out)
     """
-    # TODO: Implement function
-    #   Use tf.saved_model.loader.load to load the model and weights
-
+    
     vgg_tag = 'vgg16'
     vgg_input_tensor_name = 'image_input:0'
     vgg_keep_prob_tensor_name = 'keep_prob:0'
@@ -55,8 +53,6 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :param num_classes: Number of classes to classify
     :return: The Tensor for the last layer of output
     """
-    # TODO: Implement function
-    # end of encoder: 1x1 convolutional layer
     input = tf.layers.conv2d(
         inputs=vgg_layer7_out, 
         filters=num_classes,
@@ -136,14 +132,13 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     :param num_classes: Number of classes to classify
     :return: Tuple of (logits, train_op, cross_entropy_loss)
     """
-    # TODO: Implement function
     logits = tf.reshape(nn_last_layer, (-1, num_classes))
     cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=correct_label))
     train_op = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cross_entropy_loss)
 
     return (logits, train_op, cross_entropy_loss)
 
-#tests.test_optimize(optimize)
+tests.test_optimize(optimize)
 
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
@@ -161,77 +156,17 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param keep_prob: TF Placeholder for dropout keep probability
     :param learning_rate: TF Placeholder for learning rate
     """
-    # TODO: Implement function
-    
-   
-    # # Model Evaluation
-    # correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
-    # accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    saver = tf.train.Saver()
-    # def evaluate(X_data, y_data):
-    #         BATCH_SIZE = 128
-    #         num_examples = len(X_data)
-    #         total_accuracy = 0
-    #         sess = tf.get_default_session()
-    #         for offset in range(0, num_examples, BATCH_SIZE):
-    #             batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-    #             accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: 1})
-    #             total_accuracy += (accuracy * len(batch_x))
-    #         return total_accuracy / num_examples
     
     print("Training...")
-    print()
 
     for epoch in range(epochs):
         for image, label in get_batches_fn(batch_size):
-            print (type(image), type(label), type(keep_prob))
-            sess.run(train_op, feed_dict={input_image: image, correct_label: label, keep_prob: 1})
-            #validation_accuracy = evaluate(X_validation, y_validation)
-        print("EPOCH {} ...".format(epoch+1))
-        #print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-    print()
-    saver.save(sess, 'FCN')
-    print("Model saved")
-
-    # # Model Evaluation
-    # correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
-    # accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    # saver = tf.train.Saver()
-    # def evaluate(X_data, y_data):
-    #         BATCH_SIZE = 128
-    #         num_examples = len(X_data)
-    #         total_accuracy = 0
-    #         sess = tf.get_default_session()
-    #         for offset in range(0, num_examples, BATCH_SIZE):
-    #             batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-    #             accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: 1})
-    #             total_accuracy += (accuracy * len(batch_x))
-    #         return total_accuracy / num_examples
-    # if mode==1:
-    #     with tf.Session() as sess:
-    #      sess.run(tf.global_variables_initializer())
-    #        num_examples = len(X_train_pp)
             
+            _,loss = sess.run([train_op,cross_entropy_loss], 
+                feed_dict={input_image: image, correct_label: label, keep_prob: 0.8})
+        print("EPOCH {}. Loss = {:.3f}".format(epoch+1, loss))
     
-  #where to put this?  
-    # correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
-    # accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-
-    # with tf.Session() as sess:
-    #   sess.run(tf.global_variables_initializer())
-    #   for i in range(epochs):
-    #     batch = mnist.train.next_batch(50)
-    #     if i % 100 == 0:
-    #       train_accuracy = accuracy.eval(feed_dict={
-    #           x: batch[0], y_: batch[1], keep_prob: 1.0})
-    #       print('step %d, training accuracy %g' % (i, train_accuracy))
-    #     train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
-
-    #   print('test accuracy %g' % accuracy.eval(feed_dict={
-    #       x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
-
-#tests.test_train_nn(train_nn)
+tests.test_train_nn(train_nn)
 
 
 def run():
@@ -242,7 +177,7 @@ def run():
     tests.test_for_kitti_dataset(data_dir)
 
     # Download pretrained vgg model
-    #helper.maybe_download_pretrained_vgg(data_dir)
+    helper.maybe_download_pretrained_vgg(data_dir)
 
     # OPTIONAL: Train and Inference on the cityscapes dataset instead of the Kitti dataset.
     # You'll need a GPU with at least 10 teraFLOPS to train on.
@@ -254,22 +189,19 @@ def run():
         # Create function to get batches
         get_batches_fn = helper.gen_batch_function(os.path.join(data_dir, 'data_road/training'), image_shape)
         
-        # OPTIONAL: Augment Images for better results
-        #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
-       
-        # TODO: Build NN using load_vgg, layers, and optimize function
+        # Build NN using load_vgg, layers, and optimize function
         correct_label = tf.placeholder(tf.float32, [None, image_shape[0], image_shape[1], num_classes])
-#        learning_rate = tf.placeholder(tf.float32, 1e-3)
+        learning_rate = 1e-4
 
         image_input, keep_prob, vgg_layer3_out, vgg_layer4_out, vgg_layer7_out = load_vgg(sess, vgg_path)
         nn_last_layer = layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes=2)
-        logits, train_op, cross_entropy_loss = optimize(nn_last_layer, correct_label, 1e-3, 2)
+        logits, train_op, cross_entropy_loss = optimize(nn_last_layer, correct_label, learning_rate, 2)
 
-        # TODO: Train NN using the train_nn function
+        # Train NN using the train_nn function
         sess.run(tf.global_variables_initializer())
         train_nn(
             sess=sess, 
-            epochs=1, 
+            epochs=20, 
             batch_size=8, 
             get_batches_fn=get_batches_fn, 
             train_op=train_op, 
@@ -277,9 +209,10 @@ def run():
             input_image=image_input,
             correct_label=correct_label, 
             keep_prob=keep_prob, 
-            learning_rate=1e-3)
-        # TODO: Save inference data using helper.save_inference_samples
-        helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
+            learning_rate=learning_rate)
+        
+        # Save inference data using helper.save_inference_samples
+        helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, image_input)
 
         # OPTIONAL: Apply the trained model to a video
 
